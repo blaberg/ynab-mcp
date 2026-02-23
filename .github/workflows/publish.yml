@@ -1,0 +1,28 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: ko-build/setup-ko@v0.9
+      - name: Login to GHCR
+        env:
+          KO_DOCKER_REPO: ghcr.io/${{ github.repository }}
+        run: ko login ghcr.io --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        env:
+          KO_DOCKER_REPO: ghcr.io/${{ github.repository }}
+        run: ko build ./cmd/ynab-mcp --tags ${GITHUB_REF_NAME#v},${{ github.sha }}
