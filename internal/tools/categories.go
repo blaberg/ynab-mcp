@@ -22,6 +22,9 @@ func registerCategoryTools(s *server.MCPServer) {
 func getCategoriesHandler() server.ToolHandlerFunc {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		client := ynab.FromContext(ctx)
+		if client == nil {
+			return mcp.NewToolResultError("YNAB API token not configured"), nil
+		}
 		budgetID := mcp.ParseString(request, "budget_id", "")
 		if budgetID == "" {
 			return mcp.NewToolResultError("budget_id is required"), nil
