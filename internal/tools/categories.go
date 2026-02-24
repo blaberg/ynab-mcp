@@ -30,7 +30,7 @@ func getCategoriesHandler() server.ToolHandlerFunc {
 			return mcp.NewToolResultError("budget_id is required"), nil
 		}
 
-		categories, err := client.GetCategories(budgetID)
+		categories, err := client.GetCategories(ctx, budgetID)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}

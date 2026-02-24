@@ -101,7 +101,7 @@ func getTransactionsHandler() server.ToolHandlerFunc {
 
 		sinceDate := mcp.ParseString(request, "since_date", "")
 
-		transactions, err := client.GetTransactions(budgetID, sinceDate)
+		transactions, err := client.GetTransactions(ctx, budgetID, sinceDate)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
@@ -149,7 +149,7 @@ func createTransactionsHandler() server.ToolHandlerFunc {
 			}
 		}
 
-		result, err := client.CreateTransactions(budgetID, txns)
+		result, err := client.CreateTransactions(ctx, budgetID, txns)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
@@ -186,7 +186,7 @@ func createTransactionHandler() server.ToolHandlerFunc {
 			return mcp.NewToolResultError("date is required"), nil
 		}
 
-		result, err := client.CreateTransaction(budgetID, txn)
+		result, err := client.CreateTransaction(ctx, budgetID, txn)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}

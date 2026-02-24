@@ -30,7 +30,7 @@ func getAccountsHandler() server.ToolHandlerFunc {
 			return mcp.NewToolResultError("budget_id is required"), nil
 		}
 
-		accounts, err := client.GetAccounts(budgetID)
+		accounts, err := client.GetAccounts(ctx, budgetID)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}

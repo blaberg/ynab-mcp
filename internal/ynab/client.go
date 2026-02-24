@@ -1,6 +1,7 @@
 package ynab
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -26,10 +27,10 @@ func NewClient(token string) *Client {
 	}
 }
 
-func (c *Client) doRequest(method, path string, body io.Reader) (*http.Response, error) {
+func (c *Client) doRequest(ctx context.Context, method, path string, body io.Reader) (*http.Response, error) {
 	url := c.baseURL + path
 
-	req, err := http.NewRequest(method, url, body)
+	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
@@ -53,8 +54,8 @@ func (c *Client) doRequest(method, path string, body io.Reader) (*http.Response,
 	return resp, nil
 }
 
-func (c *Client) doGet(path string, target any) error {
-	resp, err := c.doRequest(http.MethodGet, path, nil)
+func (c *Client) doGet(ctx context.Context, path string, target any) error {
+	resp, err := c.doRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return err
 	}
@@ -63,8 +64,8 @@ func (c *Client) doGet(path string, target any) error {
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
-func (c *Client) doPost(path string, body io.Reader, target any) error {
-	resp, err := c.doRequest(http.MethodPost, path, body)
+func (c *Client) doPost(ctx context.Context, path string, body io.Reader, target any) error {
+	resp, err := c.doRequest(ctx, http.MethodPost, path, body)
 	if err != nil {
 		return err
 	}

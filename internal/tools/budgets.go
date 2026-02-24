@@ -30,7 +30,7 @@ func listBudgetsHandler() server.ToolHandlerFunc {
 		if client == nil {
 			return mcp.NewToolResultError("YNAB API token not configured"), nil
 		}
-		budgets, err := client.GetBudgets()
+		budgets, err := client.GetBudgets(ctx)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
@@ -49,7 +49,7 @@ func getBudgetHandler() server.ToolHandlerFunc {
 			return mcp.NewToolResultError("budget_id is required"), nil
 		}
 
-		budget, err := client.GetBudget(budgetID)
+		budget, err := client.GetBudget(ctx, budgetID)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
