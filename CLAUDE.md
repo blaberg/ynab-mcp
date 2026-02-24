@@ -38,3 +38,4 @@ Three-layer design:
 - YNAB amounts are in **milliunits** (1000 = $1.00).
 - The `context.go` pattern stores/retrieves the `*ynab.Client` from `context.Context` using a typed key.
 - Tool handlers in `internal/tools/` return `mcp.CallToolResult` with JSON-marshaled content or error text.
+- When adding a new tool, also add a description of it to the README.
