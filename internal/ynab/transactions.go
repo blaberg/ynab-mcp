@@ -36,6 +36,21 @@ func (c *Client) CreateTransaction(ctx context.Context, budgetID string, txn Sav
 	return &resp.Data.Transaction, nil
 }
 
+// UpdateTransaction updates an existing transaction in a budget.
+func (c *Client) UpdateTransaction(ctx context.Context, budgetID string, transactionID string, txn SaveTransaction) (*TransactionDetail, error) {
+	wrapper := SaveTransactionWrapper{Transaction: txn}
+	body, err := json.Marshal(wrapper)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling transaction: %w", err)
+	}
+
+	var resp SaveTransactionsResponse
+	if err := c.doPut(ctx, "/budgets/"+budgetID+"/transactions/"+transactionID, bytes.NewReader(body), &resp); err != nil {
+		return nil, fmt.Errorf("updating transaction %s in budget %s: %w", transactionID, budgetID, err)
+	}
+	return &resp.Data.Transaction, nil
+}
+
 // CreateTransactions creates multiple transactions in a budget in a single request.
 func (c *Client) CreateTransactions(ctx context.Context, budgetID string, txns []SaveTransaction) ([]TransactionDetail, error) {
 	wrapper := SaveTransactionsArrayWrapper{Transactions: txns}

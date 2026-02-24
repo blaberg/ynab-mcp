@@ -86,6 +86,47 @@ func registerTransactionTools(s *server.MCPServer) {
 		),
 	)
 	s.AddTool(createTransactions, createTransactionsHandler())
+
+	updateTransaction := mcp.NewTool("update_transaction",
+		mcp.WithDescription("Update an existing transaction in a budget. Amount is in milliunits (1000 = $1.00, use negative for outflows)."),
+		mcp.WithString("budget_id",
+			mcp.Required(),
+			mcp.Description("The ID of the budget"),
+		),
+		mcp.WithString("transaction_id",
+			mcp.Required(),
+			mcp.Description("The ID of the transaction to update"),
+		),
+		mcp.WithString("account_id",
+			mcp.Required(),
+			mcp.Description("The ID of the account for this transaction"),
+		),
+		mcp.WithString("date",
+			mcp.Required(),
+			mcp.Description("The transaction date in ISO format (YYYY-MM-DD)"),
+		),
+		mcp.WithNumber("amount",
+			mcp.Required(),
+			mcp.Description("The transaction amount in milliunits (1000 = $1.00, use negative for outflows)"),
+		),
+		mcp.WithString("payee_name",
+			mcp.Description("The payee name"),
+		),
+		mcp.WithString("category_id",
+			mcp.Description("The category ID for this transaction"),
+		),
+		mcp.WithString("memo",
+			mcp.Description("A memo for the transaction"),
+		),
+		mcp.WithString("cleared",
+			mcp.Description("The cleared status"),
+			mcp.Enum("cleared", "uncleared", "reconciled"),
+		),
+		mcp.WithBoolean("approved",
+			mcp.Description("Whether the transaction is approved"),
+		),
+	)
+	s.AddTool(updateTransaction, updateTransactionHandler())
 }
 
 func getTransactionsHandler() server.ToolHandlerFunc {
@@ -187,6 +228,47 @@ func createTransactionHandler() server.ToolHandlerFunc {
 		}
 
 		result, err := client.CreateTransaction(ctx, budgetID, txn)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultJSON(result)
+	}
+}
+
+func updateTransactionHandler() server.ToolHandlerFunc {
+	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		client := ynab.FromContext(ctx)
+		if client == nil {
+			return mcp.NewToolResultError("YNAB API token not configured"), nil
+		}
+		budgetID := mcp.ParseString(request, "budget_id", "")
+		if budgetID == "" {
+			return mcp.NewToolResultError("budget_id is required"), nil
+		}
+		transactionID := mcp.ParseString(request, "transaction_id", "")
+		if transactionID == "" {
+			return mcp.NewToolResultError("transaction_id is required"), nil
+		}
+
+		txn := ynab.SaveTransaction{
+			AccountID:  mcp.ParseString(request, "account_id", ""),
+			Date:       mcp.ParseString(request, "date", ""),
+			Amount:     mcp.ParseInt64(request, "amount", 0),
+			PayeeName:  mcp.ParseString(request, "payee_name", ""),
+			CategoryID: mcp.ParseString(request, "category_id", ""),
+			Memo:       mcp.ParseString(request, "memo", ""),
+			Cleared:    mcp.ParseString(request, "cleared", ""),
+			Approved:   mcp.ParseBoolean(request, "approved", false),
+		}
+
+		if txn.AccountID == "" {
+			return mcp.NewToolResultError("account_id is required"), nil
+		}
+		if txn.Date == "" {
+			return mcp.NewToolResultError("date is required"), nil
+		}
+
+		result, err := client.UpdateTransaction(ctx, budgetID, transactionID, txn)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}

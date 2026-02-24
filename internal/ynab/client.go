@@ -73,3 +73,13 @@ func (c *Client) doPost(ctx context.Context, path string, body io.Reader, target
 
 	return json.NewDecoder(resp.Body).Decode(target)
 }
+
+func (c *Client) doPut(ctx context.Context, path string, body io.Reader, target any) error {
+	resp, err := c.doRequest(ctx, http.MethodPut, path, body)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	return json.NewDecoder(resp.Body).Decode(target)
+}
