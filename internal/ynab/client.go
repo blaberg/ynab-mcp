@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 const baseURL = "https://api.ynab.com/v1"
@@ -19,7 +20,7 @@ type Client struct {
 // NewClient creates a new YNAB API client with the given personal access token.
 func NewClient(token string) *Client {
 	return &Client{
-		httpClient: &http.Client{},
+		httpClient: &http.Client{Timeout: 30 * time.Second},
 		baseURL:    baseURL,
 		token:      token,
 	}
