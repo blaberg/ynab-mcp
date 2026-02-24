@@ -10,4 +10,5 @@ func RegisterTools(s *server.MCPServer) {
 	registerAccountTools(s)
 	registerCategoryTools(s)
 	registerTransactionTools(s)
+	registerMonthTools(s)
 }

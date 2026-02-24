@@ -155,6 +155,8 @@ Requests must include the `X-YNAB-Token` header with a valid YNAB API token.
 | `create_transaction` | Create a single transaction |
 | `create_transactions` | Create multiple transactions in a single request |
 | `update_transaction` | Update an existing transaction in a budget |
+| `get_budget_months` | List all budget months with income, budgeted, activity, and to-be-budgeted amounts |
+| `get_budget_month` | Get a single budget month with per-category breakdowns |
 
 YNAB amounts are in **milliunits** (1000 = $1.00). Use negative values for outflows.
 

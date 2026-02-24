@@ -135,3 +135,36 @@ type BulkSaveTransactionsResponse struct {
 		DuplicateImportIDs []string            `json:"duplicate_import_ids"`
 	} `json:"data"`
 }
+
+// MonthSummary represents a budget month overview.
+type MonthSummary struct {
+	Month      string `json:"month"`
+	Income     int64  `json:"income"`
+	Budgeted   int64  `json:"budgeted"`
+	Activity   int64  `json:"activity"`
+	ToBeBudget int64  `json:"to_be_budgeted"`
+	Deleted    bool   `json:"deleted"`
+}
+
+// MonthDetail represents a single budget month with category breakdowns.
+type MonthDetail struct {
+	Month      string     `json:"month"`
+	Income     int64      `json:"income"`
+	Budgeted   int64      `json:"budgeted"`
+	Activity   int64      `json:"activity"`
+	ToBeBudget int64      `json:"to_be_budgeted"`
+	Categories []Category `json:"categories"`
+	Deleted    bool       `json:"deleted"`
+}
+
+type MonthsResponse struct {
+	Data struct {
+		Months []MonthSummary `json:"months"`
+	} `json:"data"`
+}
+
+type MonthDetailResponse struct {
+	Data struct {
+		Month MonthDetail `json:"month"`
+	} `json:"data"`
+}
