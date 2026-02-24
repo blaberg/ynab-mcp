@@ -11,40 +11,58 @@ A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that e
 - Create single or bulk transactions
 - Two transport modes: **stdio** (for CLI/desktop) and **HTTP** (for server deployment)
 
-## Prerequisites
+## YNAB API Token
 
-- Go 1.24+
-- A [YNAB personal access token](https://api.ynab.com/#personal-access-tokens)
+To use this server you need a YNAB personal access token:
+
+1. Log in to your YNAB account at https://app.ynab.com
+2. Go to **Account Settings** → **Developer Settings**
+3. Click **New Token** and follow the prompts
+4. Copy the token — you'll need it for the configuration below
+
+More details in the [YNAB API docs](https://api.ynab.com/#personal-access-tokens).
 
 ## Installation
+
+Pick one of the three methods below.
+
+### Container package (ghcr.io)
+
+```bash
+docker pull ghcr.io/blaberg/ynab-mcp:latest
+```
+
+Claude Desktop config (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "ynab": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "YNAB_API_TOKEN", "ghcr.io/blaberg/ynab-mcp:latest"],
+      "env": {
+        "YNAB_API_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+Claude Code CLI:
+
+```bash
+claude mcp add ynab -e YNAB_API_TOKEN=your-token-here -- docker run -i --rm -e YNAB_API_TOKEN ghcr.io/blaberg/ynab-mcp:latest
+```
+
+### Go install
+
+Requires Go 1.24+.
 
 ```bash
 go install github.com/blaberg/ynab-mcp/cmd/ynab-mcp@latest
 ```
 
-Or build from source:
-
-```bash
-git clone https://github.com/blaberg/ynab-mcp.git
-cd ynab-mcp
-go build ./cmd/ynab-mcp
-```
-
-## Configuration
-
-| Variable | Description | Default |
-|---|---|---|
-| `YNAB_API_TOKEN` | YNAB personal access token (required for stdio transport) | — |
-| `TRANSPORT` | Transport mode: `stdio` or `http` | `stdio` |
-| `PORT` | HTTP server port (http transport only) | `8080` |
-
-In HTTP transport mode, the YNAB token is read from the `X-YNAB-Token` request header instead of an environment variable.
-
-## Usage
-
-### With Claude Desktop
-
-Add the following to your Claude Desktop MCP configuration:
+Claude Desktop config (`claude_desktop_config.json`):
 
 ```json
 {
@@ -58,6 +76,55 @@ Add the following to your Claude Desktop MCP configuration:
   }
 }
 ```
+
+Claude Code CLI:
+
+```bash
+claude mcp add ynab -e YNAB_API_TOKEN=your-token-here -- ynab-mcp
+```
+
+### Build from source
+
+Requires Go 1.24+.
+
+```bash
+git clone https://github.com/blaberg/ynab-mcp.git
+cd ynab-mcp
+go build ./cmd/ynab-mcp
+```
+
+Claude Desktop config (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "ynab": {
+      "command": "/path/to/ynab-mcp",
+      "env": {
+        "YNAB_API_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+Claude Code CLI:
+
+```bash
+claude mcp add ynab -e YNAB_API_TOKEN=your-token-here -- /path/to/ynab-mcp
+```
+
+## Configuration
+
+| Variable | Description | Default |
+|---|---|---|
+| `YNAB_API_TOKEN` | YNAB personal access token (required for stdio transport) | — |
+| `TRANSPORT` | Transport mode: `stdio` or `http` | `stdio` |
+| `PORT` | HTTP server port (http transport only) | `8080` |
+
+In HTTP transport mode, the YNAB token is read from the `X-YNAB-Token` request header instead of an environment variable.
+
+## Usage
 
 ### Stdio transport
 
@@ -87,6 +154,7 @@ Requests must include the `X-YNAB-Token` header with a valid YNAB API token.
 | `get_transactions` | Get transactions for a budget, optionally filtered by date |
 | `create_transaction` | Create a single transaction |
 | `create_transactions` | Create multiple transactions in a single request |
+| `update_transaction` | Update an existing transaction in a budget |
 
 YNAB amounts are in **milliunits** (1000 = $1.00). Use negative values for outflows.
 
