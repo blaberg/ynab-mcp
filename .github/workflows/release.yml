@@ -50,4 +50,4 @@ jobs:
       - name: Login to GHCR
         run: ko login ghcr.io --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
-        run: ko build ./cmd/ynab-mcp --tags ${{ needs.release.outputs.version }},${{ github.sha }}
+        run: ko build ./cmd/ynab-mcp --base-import-paths --tags ${{ needs.release.outputs.version }},${{ github.sha }}
